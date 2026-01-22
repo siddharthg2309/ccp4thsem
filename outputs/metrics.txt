@@ -1,0 +1,20 @@
+============================================================
+GROUNDWATER LEVEL PREDICTION - MODEL EVALUATION METRICS
+Generated: 2026-01-22 11:20:55
+============================================================
+
+EVALUATION METRICS
+----------------------------------------
+Mean Absolute Error (MAE): 1.6241
+Root Mean Squared Error (RMSE): 1.9355
+
+INTERPRETATION
+----------------------------------------
+- On average, predictions deviate by 1.62 units from actual values
+- RMSE penalizes larger errors more heavily
+
+PREDICTION STATISTICS
+----------------------------------------
+Test samples: 16
+Actual GW_LEVEL - Min: 1.12, Max: 5.23, Mean: 2.96
+Predicted GW_LEVEL - Min: 2.53, Max: 7.98, Mean: 4.18
