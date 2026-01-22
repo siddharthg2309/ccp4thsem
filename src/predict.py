@@ -13,11 +13,13 @@ import pandas as pd
 import joblib
 import argparse
 import os
+import matplotlib.pyplot as plt
 
 # Paths
 MODEL_PATH = "models/xgb_model.joblib"
 FEATURES_PATH = "models/feature_names.joblib"
 DATA_PATH = "data/final_processed_groundwater_dataset.csv"
+CUSTOM_PLOT_PATH = "outputs/custom_prediction.png"
 
 def load_model():
     """Load trained model and feature names."""
@@ -66,6 +68,53 @@ def predict_from_last_row():
     
     return prediction
 
+def create_prediction_plot(input_dict, prediction):
+    """Create visualization for custom prediction."""
+    os.makedirs(os.path.dirname(CUSTOM_PLOT_PATH), exist_ok=True)
+    
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # Plot 1: Input Features Bar Chart
+    ax1 = axes[0]
+    features = list(input_dict.keys())
+    values = list(input_dict.values())
+    colors = ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12', '#1abc9c']
+    
+    bars = ax1.bar(features, values, color=colors, edgecolor='black', linewidth=1.2)
+    ax1.set_xlabel('Features', fontsize=12, fontweight='bold')
+    ax1.set_ylabel('Value', fontsize=12, fontweight='bold')
+    ax1.set_title('Input Features for Prediction', fontsize=14, fontweight='bold')
+    ax1.tick_params(axis='x', rotation=45)
+    ax1.grid(axis='y', alpha=0.3)
+    
+    # Add value labels on bars
+    for bar, val in zip(bars, values):
+        ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
+                f'{val:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+    
+    # Plot 2: Prediction Result - Simple gauge style
+    ax2 = axes[1]
+    
+    # Create a simple visual with the prediction
+    ax2.barh(['GW_LEVEL'], [prediction], color='#27ae60', height=0.5, edgecolor='black', linewidth=2)
+    ax2.set_xlim(0, max(20, prediction + 2))
+    ax2.set_xlabel('Groundwater Level (meters)', fontsize=12, fontweight='bold')
+    ax2.set_title(f'PREDICTED GW_LEVEL: {prediction:.2f} m', fontsize=16, fontweight='bold', color='#27ae60')
+    ax2.grid(axis='x', alpha=0.3)
+    
+    # Add prediction value on bar
+    ax2.text(prediction + 0.3, 0, f'{prediction:.2f}', va='center', fontsize=14, fontweight='bold', color='#2c3e50')
+    
+    # Add reference line for average
+    ax2.axvline(x=3.77, color='#e74c3c', linestyle='--', linewidth=2, label=f'Dataset Avg: 3.77')
+    ax2.legend(loc='lower right', fontsize=10)
+    
+    plt.tight_layout()
+    plt.savefig(CUSTOM_PLOT_PATH, dpi=150, bbox_inches='tight', facecolor='white')
+    plt.close()
+    
+    print(f"\n✓ Prediction plot saved to: {CUSTOM_PLOT_PATH}")
+
 def predict_from_input(rainfall, month, season, gw_lag_1, gw_lag_3, gw_lag_6):
     """Predict using user-provided input values."""
     print("\n" + "=" * 50)
@@ -103,6 +152,9 @@ def predict_from_input(rainfall, month, season, gw_lag_1, gw_lag_3, gw_lag_6):
     print("\n" + "-" * 50)
     print(f"PREDICTED GW_LEVEL: {prediction:.2f}")
     print("-" * 50)
+    
+    # Create visualization
+    create_prediction_plot(input_dict, prediction)
     
     return prediction
 
